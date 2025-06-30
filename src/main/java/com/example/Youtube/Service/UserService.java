@@ -3,7 +3,6 @@ package com.example.Youtube.Service;
 import com.example.Youtube.Model.User;
 import com.example.Youtube.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +29,7 @@ public class UserService implements UserDetailsService {
     public void addUser(User user) throws Exception {
         User userFromDB = userRepository.findByUsername(user.getUsername());
         if(userFromDB != null){
-            throw new Exception(); // edit exception
+            throw new Exception("User with this username is already exist"); // edit exception
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);

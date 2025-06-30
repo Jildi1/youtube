@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AuthController {
+
     @Autowired
     private JwtService jwtService;
+
     @Autowired
     private UserService userService;
+
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@RequestBody AuthenticationRequest authenticationRequest){
         try {
@@ -24,6 +27,7 @@ public class AuthController {
             throw new RuntimeException(e);
         }
     }
+
     @PostMapping("/signup")
     public ResponseEntity<?> registration(@RequestBody User user){
         try{
@@ -33,4 +37,5 @@ public class AuthController {
             throw new RuntimeException(e);
         }
     }
+
 }
