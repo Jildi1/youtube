@@ -26,8 +26,11 @@ public class SubscribeService {
         if(!author.isPresent()){
             throw new UsernameNotFoundException("This author does not exist!");
         }
-        if(subscriber.equals(author)){
+        if(subscriber.equals(author.get())){
             throw new Exception("You can't subscribe to yourself!");
+        }
+        if(author.get().getSubscribers().contains(subscriber)){
+            throw new Exception("You already subscribe to that author!");
         }
         author.get().getSubscribers().add(subscriber);
 
@@ -39,8 +42,11 @@ public class SubscribeService {
         if(!author.isPresent()){
             throw new UsernameNotFoundException("This author does not exist!");
         }
-        if(unsubscriber.equals(author)){
+        if(unsubscriber.equals(author.get())){
             throw new Exception("You can't unsubscribe to yourself!");
+        }
+        if(!author.get().getSubscribers().contains(unsubscriber)){
+            throw new Exception("You are not subscribed to this user!");
         }
         author.get().getSubscribers().remove(unsubscriber);
 
