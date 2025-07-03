@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class AuthController {
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
+    private final UserService userService;
+    
     @Autowired
-    private UserService userService;
+    public AuthController(JwtService jwtService, UserService userService) {
+        this.jwtService = jwtService;
+        this.userService = userService;
+    }
 
     @PostMapping("/signin")
     public ResponseEntity<?> signin(@RequestBody AuthenticationRequest authenticationRequest){

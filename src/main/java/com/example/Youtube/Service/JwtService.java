@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+
+    private final UserService userService;
+
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
+    public JwtService(AuthenticationManager authenticationManager, UserService userService, JwtUtil jwtUtil) {
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
+    }
 
     public String createJwtToken(AuthenticationRequest authenticationRequest) throws Exception {
         try{

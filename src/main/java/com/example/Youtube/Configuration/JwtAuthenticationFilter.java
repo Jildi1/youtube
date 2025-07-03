@@ -23,12 +23,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
     }
 
     @Override
