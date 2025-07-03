@@ -2,12 +2,16 @@ package com.example.Youtube.Controller;
 
 import com.example.Youtube.Model.AuthenticationRequest;
 import com.example.Youtube.Model.AuthenticationResponse;
+import com.example.Youtube.Model.HttpResponse;
 import com.example.Youtube.Model.User;
 import com.example.Youtube.Service.JwtService;
 import com.example.Youtube.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 public class AuthController {
@@ -28,7 +32,15 @@ public class AuthController {
             final String jwt = jwtService.createJwtToken(authenticationRequest);
             return ResponseEntity.ok().body(new AuthenticationResponse(jwt));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().body(
+                    HttpResponse
+                            .builder()
+                            .timeStamp(new Date())
+                            .message(e.getMessage())
+                            .status(HttpStatus.FORBIDDEN)
+                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .build()
+            );
         }
     }
 
@@ -38,7 +50,15 @@ public class AuthController {
             userService.addUser(user);
             return ResponseEntity.ok().body("User is create!");
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().body(
+                    HttpResponse
+                            .builder()
+                            .timeStamp(new Date())
+                            .message(e.getMessage())
+                            .status(HttpStatus.FORBIDDEN)
+                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .build()
+            );
         }
     }
 
