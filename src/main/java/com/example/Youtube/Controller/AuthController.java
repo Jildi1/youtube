@@ -37,8 +37,8 @@ public class AuthController {
                             .builder()
                             .timeStamp(new Date())
                             .message(e.getMessage())
-                            .status(HttpStatus.FORBIDDEN)
-                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build()
             );
         }
@@ -55,8 +55,8 @@ public class AuthController {
                             .builder()
                             .timeStamp(new Date())
                             .message(e.getMessage())
-                            .status(HttpStatus.FORBIDDEN)
-                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build()
             );
         }

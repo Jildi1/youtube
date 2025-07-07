@@ -31,6 +31,7 @@ public class User implements UserDetails {
     @Email
     private String email;
 
+
     @ManyToMany()
     @JoinTable(
             name = "user_subscription",

@@ -6,11 +6,9 @@ import com.example.Youtube.Service.SubscribeService;
 import com.example.Youtube.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,8 +49,8 @@ public class SubscribeController {
                             .builder()
                             .timeStamp(new Date())
                             .message(e.getMessage())
-                            .status(HttpStatus.FORBIDDEN)
-                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build()
             );
 
@@ -82,8 +80,8 @@ public class SubscribeController {
                             .builder()
                             .timeStamp(new Date())
                             .message(e.getMessage())
-                            .status(HttpStatus.FORBIDDEN)
-                            .statusCode(HttpStatus.FORBIDDEN.value())
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build()
             );
         }
