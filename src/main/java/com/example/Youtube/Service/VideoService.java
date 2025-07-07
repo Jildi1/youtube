@@ -3,8 +3,7 @@ package com.example.Youtube.Service;
 import com.example.Youtube.Model.User;
 import com.example.Youtube.Model.Video;
 import com.example.Youtube.Repository.VideoRepository;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,10 +15,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class VideoService {
 
     @Value("${path.video}")
@@ -43,8 +42,7 @@ public class VideoService {
         if (index > 0) {
             extension = file.getOriginalFilename().substring(index);
         }
-
-        if(!extension.equals(".mp4") || !extension.equals(".mov") || !extension.equals(".avi") || !extension.equals("wmv")){
+        if(!extension.equals(".mp4") && !extension.equals(".mov") && !extension.equals(".avi") && !extension.equals("wmv")){
             throw new Exception("Invalid extension!");
         }
 
