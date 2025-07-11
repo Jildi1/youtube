@@ -23,10 +23,10 @@ public class Video {
     private String expansion;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
-    private User author;
+    @JoinColumn(name = "channel_id")
+    private Channel author;
 
-    public Video(String title, String description, User author) {
+    public Video(String title, String description, Channel author) {
         this.title = title;
         this.description = description;
         this.author = author;

@@ -1,12 +1,11 @@
 package com.example.Youtube.Service;
 
+import com.example.Youtube.Model.Channel;
 import com.example.Youtube.Model.User;
-import com.example.Youtube.Repository.UserRepository;
+import com.example.Youtube.Repository.ChannelRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -14,43 +13,42 @@ import java.util.Optional;
 @Slf4j
 public class SubscribeService {
 
-    private final UserRepository userRepository;
+    private final ChannelRepository channelRepository;
 
-    @Autowired
-    public SubscribeService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SubscribeService(ChannelRepository channelRepository) {
+        this.channelRepository = channelRepository;
     }
-    @Transactional
-    public void subscribe(User subscriber, Long authorId) throws Exception {
-        Optional<User> author = userRepository.findById(authorId);
-        if(!author.isPresent()){
+
+    public void subscribe(Channel subscriber, Long channelId) throws Exception {
+        Optional<Channel> channel = channelRepository.findById(channelId);
+        if(!channel.isPresent()){
             throw new UsernameNotFoundException("This author does not exist!");
         }
-        if(subscriber.equals(author.get())){
+        if(subscriber.equals(channel.get())){
             throw new Exception("You can't subscribe to yourself!");
         }
-        if(author.get().getSubscribers().contains(subscriber)){
+        if(channel.get().getSubscribers().contains(subscriber)){
             throw new Exception("You already subscribe to that author!");
         }
-        author.get().getSubscribers().add(subscriber);
+        channel.get().getSubscribers().add(subscriber);
 
-        userRepository.save(author.get());
+        channelRepository.save(channel.get());
     }
 
-    public void unsubscribe(User unsubscriber, Long authorId) throws Exception {
-        Optional<User> author = userRepository.findById(authorId);
-        if(!author.isPresent()){
+    public void unsubscribe(Channel unsubscriber, Long channelId) throws Exception {
+        Optional<Channel> channel = channelRepository.findById(channelId);
+        if(!channel.isPresent()){
             throw new UsernameNotFoundException("This author does not exist!");
         }
-        if(unsubscriber.equals(author.get())){
+        if(unsubscriber.equals(channel.get())){
             throw new Exception("You can't unsubscribe to yourself!");
         }
-        if(!author.get().getSubscribers().contains(unsubscriber)){
+        if(!channel.get().getSubscribers().contains(unsubscriber)){
             throw new Exception("You are not subscribed to this user!");
         }
-        author.get().getSubscribers().remove(unsubscriber);
+        channel.get().getSubscribers().remove(unsubscriber);
 
-        userRepository.save(author.get());
+        channelRepository.save(channel.get());
     }
 
 

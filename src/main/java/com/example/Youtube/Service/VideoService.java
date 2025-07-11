@@ -1,20 +1,19 @@
 package com.example.Youtube.Service;
 
-import com.example.Youtube.Model.User;
+import com.example.Youtube.Model.Channel;
 import com.example.Youtube.Model.Video;
+import com.example.Youtube.Repository.ChannelRepository;
 import com.example.Youtube.Repository.VideoRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,13 +24,18 @@ public class VideoService {
     private String path;
 
     private final VideoRepository videoRepository;
+    private final ChannelRepository channelRepository;
 
-    @Autowired
-    public VideoService(VideoRepository videoRepository) {
+    public VideoService(VideoRepository videoRepository, ChannelRepository channelRepository) {
         this.videoRepository = videoRepository;
+        this.channelRepository = channelRepository;
     }
 
-    public void uploadVideo(Video video, MultipartFile file) throws Exception {
+    public Video uploadVideo(String title, String description, MultipartFile file, Channel channel) throws Exception {
+        if(channel == null){
+            throw new IllegalStateException();
+        }
+
         if(file == null){
             throw new NullPointerException("File is null");
         }
@@ -46,6 +50,7 @@ public class VideoService {
             throw new Exception("Invalid extension!");
         }
 
+        Video video = new Video(title, description, channel);
         video.setExpansion(extension);
         String filename = UUID.randomUUID().toString().substring(0, 12);
         video.setPathName(filename);
@@ -54,6 +59,7 @@ public class VideoService {
         Files.copy(file.getInputStream(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         videoRepository.save(video);
+        return video;
     }
 
     public Video findByPathName(String pathName){
@@ -66,13 +72,12 @@ public class VideoService {
         return video;
     }
 
-    public void deleteVideo(String pathName, User user) throws IOException {
-
-        if(user == null){
-            throw new UsernameNotFoundException("User not found!");
+    public void deleteVideo(String pathName, Channel channel) throws Exception {
+        if(channel == null){
+            throw new Exception("Channel not found!");
         }
         Video video = videoRepository.findByPathName(pathName);
-        if(!video.getAuthor().equals(user)){
+        if(!video.getAuthor().equals(channel)){
             throw new SecurityException("You are not author of this video");
         }
         Files.delete(Path.of(path + File.separator + video.getPathName() + video.getExpansion()));

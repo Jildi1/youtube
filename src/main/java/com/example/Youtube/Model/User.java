@@ -29,24 +29,17 @@ public class User implements UserDetails {
     private String password;
 
     @Email
+    @NotBlank
     private String email;
 
+    @OneToOne
+    @JoinColumn(name = "current_channel_id")
+    private Channel currentChannel;
 
-    @ManyToMany()
-    @JoinTable(
-            name = "user_subscription",
-            joinColumns = {@JoinColumn(name = "subscriber")},
-            inverseJoinColumns = {@JoinColumn(name = "author")}
-    )
-    private Set<User> subscription = new HashSet<>();// подписки
+    @OneToMany(mappedBy = "account")
+    Set<Channel> channels = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_subscription",
-            joinColumns = {@JoinColumn(name = "author")},
-            inverseJoinColumns = {@JoinColumn(name = "subscriber")}
-    )
-    private Set<User> subscribers = new HashSet<>();// подписчики
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -7,8 +7,8 @@ import com.example.Youtube.Service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,13 +29,14 @@ public class VideoController {
     }
 
     @PostMapping("/upload-video")
-    public ResponseEntity<?> uploadVideo(@AuthenticationPrincipal User user,
+    public ResponseEntity<?> uploadVideo(
                             @RequestParam("title") String title,
                             @RequestParam("description") String description,
                             @RequestParam("file") MultipartFile file) throws Exception {
         try {
-            Video video = new Video(title, description, user);
-            videoService.uploadVideo(video, file);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            Video video = videoService.uploadVideo(title, description, file, user.getCurrentChannel());
             return ResponseEntity.ok().body(
                     HttpResponse.builder()
                             .timeStamp(new Date())
@@ -81,9 +82,11 @@ public class VideoController {
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteVideo(@AuthenticationPrincipal User user, @RequestParam("pathName") String pathName){
+    public ResponseEntity<?> deleteVideo(@RequestParam("pathName") String pathName){
         try{
-            videoService.deleteVideo(pathName, user);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            videoService.deleteVideo(pathName, user.getCurrentChannel());
             return ResponseEntity.badRequest().body(
                     HttpResponse
                             .builder()

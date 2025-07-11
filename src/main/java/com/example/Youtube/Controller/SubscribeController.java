@@ -1,13 +1,16 @@
 package com.example.Youtube.Controller;
 
+import com.example.Youtube.Model.Channel;
 import com.example.Youtube.Model.HttpResponse;
 import com.example.Youtube.Model.User;
+import com.example.Youtube.Service.ChannelService;
 import com.example.Youtube.Service.SubscribeService;
-import com.example.Youtube.Service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,27 +20,27 @@ import java.util.Optional;
 
 @RestController
 public class SubscribeController {
-    
+
     private final SubscribeService subscribeService;
+    private final ChannelService channelService;
 
-    private final UserService userService;
-
-    @Autowired
-    public SubscribeController(SubscribeService subscribeService, UserService userService) {
+    public SubscribeController(SubscribeService subscribeService, ChannelService channelService) {
         this.subscribeService = subscribeService;
-        this.userService = userService;
+        this.channelService = channelService;
     }
 
     @PostMapping("/subscribe")
-    public ResponseEntity<?> subscribe(@AuthenticationPrincipal User subscriber, @RequestParam("authorId") Long authorId)throws Exception {
+    public ResponseEntity<?> subscribe(@RequestParam("channelId") Long channelId)throws Exception {
         try{
-            subscribeService.subscribe(subscriber, authorId);
-            Optional<User> author = userService.findById(authorId);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User subscribe = (User) authentication.getPrincipal();
+            subscribeService.subscribe(subscribe.getCurrentChannel(), channelId);
+            Optional<Channel> channel = channelService.findById(channelId);
             return ResponseEntity.badRequest().body(
                     HttpResponse
                             .builder()
                             .timeStamp(new Date())
-                            .message("You subscribe to author: " + author.get().getUsername())
+                            .message("You subscribe to channel: " + channel.get().getChannelName())
                             .status(HttpStatus.ACCEPTED)
                             .statusCode(HttpStatus.ACCEPTED.value())
                             .build()
@@ -53,22 +56,22 @@ public class SubscribeController {
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build()
             );
-
 
         }
     }
 
     @PostMapping("/unsubscribe")
-    public ResponseEntity<?> unsubscribe(@AuthenticationPrincipal User unsubscriber, @RequestParam("authorId") Long authorId) throws Exception {
+    public ResponseEntity<?> unsubscribe(@RequestParam("channelId") Long channelId) throws Exception {
         try {
-            subscribeService.unsubscribe(unsubscriber, authorId);
-            Optional<User> author = userService.findById(authorId);
-
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User unsubscriber = (User) authentication.getPrincipal();
+            subscribeService.unsubscribe(unsubscriber.getCurrentChannel(), channelId);
+            Optional<Channel> channel = channelService.findById(channelId);
             return ResponseEntity.badRequest().body(
                     HttpResponse
                             .builder()
                             .timeStamp(new Date())
-                            .message("You unsubscribe to author: " + author.get().getUsername())
+                            .message("You unsubscribe to channel: " + channel.get().getChannelName())
                             .status(HttpStatus.ACCEPTED)
                             .statusCode(HttpStatus.ACCEPTED.value())
                             .build()
@@ -85,6 +88,5 @@ public class SubscribeController {
                             .build()
             );
         }
-    }   
-
+    }
 }

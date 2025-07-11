@@ -1,9 +1,11 @@
 package com.example.Youtube.Util;
 
 import com.example.Youtube.Model.User;
+import com.example.Youtube.Repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,12 +13,21 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
+@Slf4j
 @Component
 public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secret;
+
+    @Value("${jwt.expiration.ms}")
+    private Long expirationMs;
+
+    private final UserRepository userRepository;
+
+    public JwtUtil(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // берём имя из токена
     public String extractUsername(String token){
@@ -47,16 +58,24 @@ public class JwtUtil {
     }
 
     public String generateToken(User user){
+        if(user.getCurrentChannel() == null){
+            throw new IllegalStateException();
+        }
+
         Map<String, Object> claims = new HashMap<>();
+        claims.put("user_channel_id", user.getCurrentChannel().getId());
+        claims.put("user_id", user.getId());
         return createToken(claims, user.getUsername());
     }
 
     public String createToken(Map<String, Object> claims, String subject){
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(SignatureAlgorithm.HS256, secret).compact();
+        log.info(token + " from jwtutils");
+        return token;
     }
 }
