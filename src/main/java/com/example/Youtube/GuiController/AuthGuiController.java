@@ -50,7 +50,7 @@ public class AuthGuiController {
     }
 
     @PostMapping("/signup")
-    public String signup(@RequestBody User user){
+    public String signup(User user){
         try {
             userService.addUser(user);
             return "redirect:/login";
