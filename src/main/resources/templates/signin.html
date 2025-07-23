@@ -1,0 +1,102 @@
+<!-- templates/signin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход — YouTube</title>
+    <link rel="stylesheet" href="resources/static/auth.css">
+</head>
+<style>
+    /* static/css/auth.css */
+body {
+    background-color: #f9f9f9;
+    font-family: Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auth-container {
+    width: 360px;
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.auth-logo img {
+    width: 100px;
+}
+
+.auth-container h2 {
+    font-weight: 400;
+    font-size: 22px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form input {
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.auth-form button {
+    padding: 12px;
+    background-color: #065fd4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.auth-form button:hover {
+    background-color: #0b63e5;
+}
+
+.auth-footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+}
+
+.auth-footer a {
+    color: #065fd4;
+    text-decoration: none;
+}
+
+</style>
+<body>
+<div class="auth-container">
+    <div class="auth-logo">
+        <img src="https://www.youtube.com/about/static/svgs/icons/brand-resources/YouTube-logo-full_color_light.svg?cache=f2ec7a5" alt="YouTube">
+    </div>
+    <h2>Войти</h2>
+    <form class="auth-form" method="post" action="/signin">
+        <input type="text" name="username" placeholder="Email или имя пользователя" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+    </form>
+    <div class="auth-footer">
+        Нет аккаунта? <a href="/signup">Создать</a>
+    </div>
+</div>
+</body>
+</html>

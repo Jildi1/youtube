@@ -5,3 +5,4 @@
 3.1 commit: add httpResponse to authController \
 4 commit: add video, upload, delete, watch \
 5 commit: create channel and edit logic in subs controller, service and video controller, service \
+6 commit: add like and dislike, layouts and gui controller \ 

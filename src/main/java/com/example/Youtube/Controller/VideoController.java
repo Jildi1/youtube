@@ -10,13 +10,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
+// три метода на создание удаления просмотра видео
 @RestController
+@RequestMapping("/api")
 public class VideoController {
 
 
@@ -32,7 +35,7 @@ public class VideoController {
     public ResponseEntity<?> uploadVideo(
                             @RequestParam("title") String title,
                             @RequestParam("description") String description,
-                            @RequestParam("file") MultipartFile file) throws Exception {
+                            @RequestParam("file") MultipartFile file) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
@@ -81,13 +84,13 @@ public class VideoController {
         }
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/delete-video")
     public ResponseEntity<?> deleteVideo(@RequestParam("pathName") String pathName){
         try{
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             videoService.deleteVideo(pathName, user.getCurrentChannel());
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.ok().body(
                     HttpResponse
                             .builder()
                             .timeStamp(new Date())

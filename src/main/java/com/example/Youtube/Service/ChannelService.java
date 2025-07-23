@@ -30,4 +30,31 @@ public class ChannelService {
     public Optional<Channel> findById(Long id){
         return channelRepository.findById(id);
     }
+
+    public Channel createChannel(User user, String name, String customId) throws Exception {
+        if(user == null){
+            throw new NullPointerException();
+        }
+
+        Channel channelFromDB = channelRepository.findByCustomId(customId);
+        if(channelFromDB != null){
+            throw new Exception("This customId is busy");
+        }
+        if(user.getChannels().size() == 100){
+            throw new Exception("You have too many channels");
+        }
+        Channel channel = new Channel();
+        channel.setVerified(true);
+        channel.setCustomId(customId);
+        channel.setAccount(user);
+        channel.setChannelName(name);
+        user.setCurrentChannel(channel);
+        user.getChannels().add(channel);
+        channelRepository.save(channel);
+        return channel;
+    }
+
+    public void verifyChannel(){
+
+    }
 }

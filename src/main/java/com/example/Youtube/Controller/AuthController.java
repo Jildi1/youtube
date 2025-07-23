@@ -1,9 +1,6 @@
 package com.example.Youtube.Controller;
 
-import com.example.Youtube.Model.AuthenticationRequest;
-import com.example.Youtube.Model.AuthenticationResponse;
-import com.example.Youtube.Model.HttpResponse;
-import com.example.Youtube.Model.User;
+import com.example.Youtube.Model.*;
 import com.example.Youtube.Service.JwtService;
 import com.example.Youtube.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 
 @RestController
+@RequestMapping("/api")
 public class AuthController {
 
     private final JwtService jwtService;
@@ -27,7 +25,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> signin(@RequestBody AuthenticationRequest authenticationRequest){
+    public ResponseEntity<?> signin(AuthenticationRequest authenticationRequest){
         try {
             final String jwt = jwtService.createJwtToken(authenticationRequest);
             return ResponseEntity.ok().body(new AuthenticationResponse(jwt));

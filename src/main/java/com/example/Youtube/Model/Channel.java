@@ -19,7 +19,6 @@ public class Channel{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     private String customId;
     
     @NotBlank

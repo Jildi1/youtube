@@ -10,15 +10,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.Optional;
 
+// два метода на подписку или отписку
 @RestController
+@RequestMapping("/api")
 public class SubscribeController {
 
     private final SubscribeService subscribeService;
@@ -30,13 +32,11 @@ public class SubscribeController {
     }
 
     @PostMapping("/subscribe")
-    public ResponseEntity<?> subscribe(@RequestParam("channelId") Long channelId)throws Exception {
+    public ResponseEntity<?> subscribe(@RequestParam("channelId") Long channelId, @AuthenticationPrincipal User subscribe) throws Exception {
         try{
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User subscribe = (User) authentication.getPrincipal();
             subscribeService.subscribe(subscribe.getCurrentChannel(), channelId);
             Optional<Channel> channel = channelService.findById(channelId);
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.ok().body(
                     HttpResponse
                             .builder()
                             .timeStamp(new Date())
@@ -61,13 +61,11 @@ public class SubscribeController {
     }
 
     @PostMapping("/unsubscribe")
-    public ResponseEntity<?> unsubscribe(@RequestParam("channelId") Long channelId) throws Exception {
+    public ResponseEntity<?> unsubscribe(@RequestParam("channelId") Long channelId, @AuthenticationPrincipal User unsubscriber) throws Exception {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User unsubscriber = (User) authentication.getPrincipal();
             subscribeService.unsubscribe(unsubscriber.getCurrentChannel(), channelId);
             Optional<Channel> channel = channelService.findById(channelId);
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.ok().body(
                     HttpResponse
                             .builder()
                             .timeStamp(new Date())

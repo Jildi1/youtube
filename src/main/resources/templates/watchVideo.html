@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${videoTitle + ' - YouTube'}">Название - YouTube</title>
+    <style>
+        :root {
+            --yt-red: #ff0000;
+            --yt-dark: #0f0f0f;
+            --yt-light-gray: #f9f9f9;
+            --yt-gray: #606060;
+            --yt-text-dark: #0f0f0f;
+            --yt-text-light: #606060;
+            --yt-border: #e5e5e5;
+            --yt-hover: #f2f2f2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            color: var(--yt-text-dark);
+            line-height: 1.5;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 1000px;
+            margin-right: 24px;
+        }
+
+        .sidebar {
+            width: 402px;
+            flex-shrink: 0;
+        }
+
+        /* Видеоплеер */
+        .video-container {
+            width: 100%;
+            background-color: #000;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Информация о видео */
+        .video-info {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--yt-border);
+        }
+
+        .video-title {
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .video-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .video-stats {
+            display: flex;
+            align-items: center;
+            color: var(--yt-text-light);
+            font-size: 14px;
+        }
+
+        .video-views {
+            margin-right: 12px;
+        }
+
+        .video-date {
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .video-date::before {
+            content: "•";
+            position: absolute;
+            left: 2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .action-button:hover {
+            background-color: var(--yt-hover);
+        }
+        .like-button.active {
+        color: #065fd4;
+        }
+        .dislike-button.active {
+        color: #065fd4;
+        }
+        .like-button:hover {
+        color: #065fd4;
+        }
+        .dislike-button:hover {
+        color: #065fd4;
+        }
+        .action-button i {
+            margin-right: 6px;
+            font-size: 20px;
+        }
+
+        /* Блок автора */
+        .channel-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--yt-border);
+        }
+
+        .channel-main {
+            display: flex;
+            align-items: center;
+        }
+
+        .channel-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 16px;
+            object-fit: cover;
+        }
+
+        .channel-details {
+            flex-grow: 1;
+        }
+
+        .channel-name {
+            font-weight: 500;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .channel-subs {
+            font-size: 13px;
+            color: var(--yt-gray);
+        }
+
+        .subscribe-btn {
+            background-color: var(--yt-red);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            padding: 10px 16px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-transform: none;
+            height: 36px;
+        }
+
+        .subscribe-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .subscribe-btn.subscribed {
+            background-color: #f1f1f1;
+            color: #606060;
+            border: none;
+        }
+
+        /* Описание видео */
+        .video-description {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--yt-text-dark);
+            white-space: pre-line;
+            padding: 12px 0;
+            margin-top: 12px;
+        }
+
+        .show-more {
+            color: var(--yt-text-light);
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        /* Комментарии */
+        .comments-section {
+            margin-top: 24px;
+        }
+
+        .comments-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .comments-count {
+            font-weight: 500;
+            margin-right: 24px;
+        }
+
+        .sort-comments {
+            display: flex;
+            align-items: center;
+            color: var(--yt-text-light);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sort-comments i {
+            margin-left: 8px;
+        }
+
+        .comment-form {
+            display: flex;
+            margin-bottom: 16px;
+        }
+
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 16px;
+            object-fit: cover;
+        }
+
+        .comment-input {
+            flex: 1;
+            border: none;
+            border-bottom: 1px solid var(--yt-border);
+            padding-bottom: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .comment-input:focus {
+            border-bottom: 2px solid var(--yt-text-dark);
+        }
+
+        /* Рекомендованные видео */
+        .recommended-video {
+            display: flex;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .recommended-thumbnail {
+            width: 168px;
+            height: 94px;
+            border-radius: 4px;
+            object-fit: cover;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .recommended-info {
+            flex: 1;
+        }
+
+        .recommended-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .recommended-channel {
+            font-size: 12px;
+            color: var(--yt-text-light);
+            margin-bottom: 4px;
+        }
+
+        .recommended-stats {
+            font-size: 12px;
+            color: var(--yt-text-light);
+        }
+
+        @media (max-width: 1300px) {
+            .container {
+                flex-direction: column;
+            }
+            .main-content {
+                margin-right: 0;
+                max-width: 100%;
+            }
+            .sidebar {
+                width: 100%;
+                margin-top: 24px;
+            }
+        }
+        :root {
+            --yt-red: #ff0000;
+            --yt-dark: #0f0f0f;
+            --yt-light-gray: #f9f9f9;
+            --yt-gray: #606060;
+            --yt-text-dark: #0f0f0f;
+            --yt-text-light: #606060;
+            --yt-border: #e5e5e5;
+            --yt-hover: #f2f2f2;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            background-color: white;
+            color: var(--yt-text-dark);
+        }
+
+        /* Header стили */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            height: 56px;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            height: 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            flex-grow: 1;
+            margin: 0 40px;
+            max-width: 640px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 16px;
+            border: 1px solid var(--yt-border);
+            border-radius: 20px 0 0 20px;
+            font-size: 16px;
+        }
+
+        .search-button {
+            background: var(--yt-light-gray);
+            border: 1px solid var(--yt-border);
+            border-left: none;
+            border-radius: 0 20px 20px 0;
+            padding: 0 20px;
+            cursor: pointer;
+        }
+
+        /* Main content */
+        .container {
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 1000px;
+            margin-right: 24px;
+        }
+
+        /* Видеоплеер */
+        .video-container {
+            width: 100%;
+            background-color: #000;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Кнопки действий */
+        .action-button {
+            display: flex;
+            align-items: center;
+            background: none;
+            border: none;
+            color: var(--yt-text-dark);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .action-button.active {
+            color: #065fd4;
+        }
+
+        /* Форма входа */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .login-form {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-form h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--yt-border);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .login-button {
+            background: var(--yt-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+<header class="header">
+    <div class="logo-container">
+        <div class="menu-button">
+            <i class="material-icons">menu</i>
+        </div>
+        <img src="https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png" alt="YouTube" class="logo">
+    </div>
+
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Поиск">
+        <button class="search-button">
+            <i class="material-icons">search</i>
+        </button>
+    </div>
+
+    <div class="user-actions">
+        <button class="login-button" onclick="showLoginForm()">
+            <i class="material-icons">account_circle</i>
+            Войти
+        </button>
+    </div>
+</header>
+
+
+<div class="container">
+    <main class="main-content">
+        <!-- Видеоплеер -->
+        <div class="video-container">
+            <video controls class="video-player" poster="'https://i.ytimg.com/vi_webp/' + ${video.id} + '/maxresdefault.webp'">
+                <source th:src="${videoUrl}" type="video/mp4">
+                Ваш браузер не поддерживает видео.
+            </video>
+        </div>
+
+        <!-- Информация о видео -->
+        <div class="video-info">
+            <h1 class="video-title" th:text="${videoTitle}"></h1>
+
+            <div class="video-actions">
+                <div class="action-buttons">
+                    <!-- Кнопка лайка -->
+                    <button class="action-button like-button"
+                            th:classappend="${currentFeeling == 'LIKE'} ? 'active' : ''"
+                            onclick="handleReaction('LIKE')">
+                        <i class="material-icons">thumb_up</i>
+                        <span th:text="${likesCount}">0</span>
+                    </button>
+
+                    <!-- Кнопка дизлайка -->
+                    <button class="action-button dislike-button"
+                            th:classappend="${currentFeeling == 'DISLIKE'} ? 'active' : ''"
+                            onclick="handleReaction('DISLIKE')">
+                        <i class="material-icons">thumb_down</i>
+                        <span>Не нравится</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Блок автора -->
+        <div class="channel-info">
+            <div class="channel-main">
+                <img th:src="${channelAvatarUrl}" alt="Аватар канала" class="channel-avatar"
+                     onerror="this.src='https://www.gstatic.com/youtube/img/originals/promo/ytr-logo-for-search_160x160.png'">
+
+                <div class="channel-details">
+                    <div class="channel-name" th:text="${channelName}"></div>
+                    <div class="channel-subs" th:text="${subscribersCount + ' подписчиков'}"></div>
+                </div>
+            </div>
+
+            <div th:if="${user != null}">
+                <form th:action="${isSubscribed ? '/unsubscribe' : '/subscribe'}" method="post">
+                    <input type="hidden" name="channelId" th:value="${channel.id}">
+                    <button type="submit" class="subscribe-btn"
+                            th:classappend="${isSubscribed} ? 'subscribed' : ''"
+                            th:text="${isSubscribed} ? 'Вы подписаны' : 'Подписаться'">
+                    </button>
+                </form>
+            </div>
+            <div th:unless="${user != null}">
+                <a th:href="@{'/login?redirect=/watch?v=' + ${videoId}}"
+                   class="subscribe-btn">
+                    Подписаться
+                </a>
+            </div>
+        </div>
+
+        <!-- Описание видео -->
+        <div class="video-description" th:if="${videoDescription}">
+            <div th:utext="${videoDescription}"></div>
+<!--            <div class="show-more">Показать ещё</div>-->
+        </div>
+
+        <!-- Комментарии -->
+        <div class="comments-section">
+            <div class="comments-header">
+                <div class="comments-count" th:text="${commentsCount + ' комментариев'}"></div>
+            </div>
+
+            <div class="comment-form" th:if="${user != null}">
+                <img th:src="${user.avatarUrl}" class="comment-avatar"
+                     onerror="this.src='https://www.gstatic.com/youtube/img/originals/promo/ytr-logo-for-search_160x160.png'">
+                <input type="text" class="comment-input" placeholder="Добавьте комментарий...">
+            </div>
+            <div class="comment-form" th:unless="${user != null}">
+                <img src="https://www.gstatic.com/youtube/img/originals/promo/ytr-logo-for-search_160x160.png" class="comment-avatar">
+                <input type="text" class="comment-input" placeholder="Войдите, чтобы оставить комментарий" readonly
+                       onclick="showLoginForm()">
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:inline="javascript">
+    function handleReaction(type) {
+        const likeBtn = document.querySelector('.like-button');
+        const dislikeBtn = document.querySelector('.dislike-button');
+        const likesCount = document.querySelector('.like-button span');
+        const videoPathName = /*[[${videoPathName}]]*/ '';
+
+        fetch('/api/feeling', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: type,
+                videoPathName: videoPathName
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            //Обновляем UI
+            if (type === 'LIKE') {
+                likeBtn.classList.toggle('active');
+                dislikeBtn.classList.remove('active');
+                likesCount.textContent = data.data.likesCount;
+            } else { // DISLIKE
+                dislikeBtn.classList.toggle('active');
+                if (likeBtn.classList.contains('active')) {
+                    likeBtn.classList.remove('active');
+                    likesCount.textContent = data.data.likesCount;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при обработке реакции');
+        });
+    }
+</script>
+</body>
+</html>
